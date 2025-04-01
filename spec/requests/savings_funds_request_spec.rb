@@ -17,9 +17,13 @@ RSpec.describe 'SavingsFunds', type: :request do
       end
       it "creates a new savings fund correctly" do
         post post_route, params: { savings_fund: savings_fund_attributes }
+        attributes = json_response[:data][:attributes]
 
         expect(response).to have_http_status(:created)
         expect(SavingsFunds::Creator).to have_received(:execute!).with(savings_fund_attributes.with_indifferent_access)
+        expect(attributes[:initial_value]).to eq("5000000.0")
+        expect(attributes[:current_value]).to eq("5000000.0")
+        expect(attributes[:profit_rate]).to eq("0.0")
       end
     end
 

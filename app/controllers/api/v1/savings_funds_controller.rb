@@ -6,7 +6,14 @@ module Api
       def create
         creator = ::SavingsFunds::Creator.execute!(create_params.to_h)
         return error_response(creator) if creator.failed?
-        render status: :created
+        render json: jsonapi(
+          creator.savings_fund,
+          SavingsFundSerializer,
+          :savings_fund,
+          fields: {
+            savings_fund: "initial_value, current_value, profit_rate"
+          }
+        ), status: 201
       end
 
       private
