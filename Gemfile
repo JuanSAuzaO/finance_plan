@@ -54,4 +54,6 @@ group :development, :test do
   gem "byebug"
 
   gem "factory_bot_rails"
+
+  gem "ffaker"
 end

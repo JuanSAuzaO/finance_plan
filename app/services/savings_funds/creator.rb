@@ -6,7 +6,7 @@ module SavingsFunds
 
     def self.execute!(params)
       service = new(params)
-      contract = SavingsFunds::CreateContract.new.call(service.params || {})
+      contract = ::SavingsFunds::CreateContract.new.call(service.params || {})
       return service.fail!(from_contract_errors(contract), status: get_error_code(contract)) if contract.errors.any?
       create_savings_fund!(service)
     end
@@ -14,7 +14,7 @@ module SavingsFunds
     private
 
     def self.create_savings_fund!(service)
-      query_result = ::SavingsFund.create!(service.params)
+      query_result = SavingsFund.create!(service.params)
       service.create_method!(query_result)
     end
   end

@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :savings_funds, only: %i[create], defaults: { format: "json" }
+      resources :savings_funds, only: %i[create index], defaults: { format: "json" }
     end
   end
 

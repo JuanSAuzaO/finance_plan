@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :savings_fund do
-    initial_value { 5000000 }
-    current_value { 5000000 }
+    initial_value { FFaker::Random.rand(1000000...9000000) }
+    current_value { initial_value }
   end
 end
