@@ -17,13 +17,18 @@ module Api
       end
 
       def index
-        indexer = SavingsFunds::Indexer.execute!(index_params.to_h)
+        indexer = SavingsFunds::Indexer.execute!(index_params.slice(:filter).to_h)
+        paginator, savings_funds = pagy_custom(indexer.savings_funds)
         render json: jsonapi(
-          indexer.savings_funds,
+          savings_funds,
           SavingsFundSerializer,
           :savings_fund,
           fields: index_params[:fields],
-          include: index_params[:include]
+          include: index_params[:include],
+          meta: {
+            record_count: paginator.count,
+            page_count: paginator.last
+          }
         )
       end
 

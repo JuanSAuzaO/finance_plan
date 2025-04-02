@@ -48,11 +48,11 @@ RSpec.describe 'SavingsFunds', type: :request do
 
   describe "#index" do
     let!(:get_route) { "/api/v1/savings_funds" }
-    let!(:funds) { create_list(:savings_fund, 2) }
-    let!(:succesful_indexer) { SavingsFunds::Indexer.new({}) }
     let!(:keys) { "initial_value, current_value, profit_rate" }
-    let!(:params) { { fields: { savings_fund: keys } } }
     context "with valid params" do
+      let!(:funds) { create_list(:savings_fund, 2) }
+      let!(:params) { { fields: { savings_fund: keys } } }
+      let!(:succesful_indexer) { SavingsFunds::Indexer.new(params.slice(:filter)) }
       before do
         allow(SavingsFunds::Indexer).to receive(:execute!).and_return(
           succesful_indexer.create_method!(funds)
@@ -64,9 +64,29 @@ RSpec.describe 'SavingsFunds', type: :request do
 
 
         expect(response).to have_http_status(:success)
-        expect(SavingsFunds::Indexer).to have_received(:execute!).with(params)
+        expect(SavingsFunds::Indexer).to have_received(:execute!).with(params.slice(:filter))
         expect(json_response[:data][0][:attributes]).to eq(formatted_funds[0])
         expect(json_response[:data][1][:attributes]).to eq(formatted_funds[1])
+      end
+    end
+
+    context "paginator integration" do
+      let!(:funds) { create_list(:savings_fund, 6) }
+      let!(:params) { { fields: { savings_fund: keys }, page: { size: 2, number: 2 } } }
+      let!(:succesful_indexer) { SavingsFunds::Indexer.new(params.slice(:filter)) }
+      before do
+        allow(SavingsFunds::Indexer).to receive(:execute!).and_return(
+          succesful_indexer.create_method!(SavingsFund.all)
+        )
+      end
+
+      it "lists the third and fourth record only" do
+        get get_route, params: params
+
+        expect(response).to have_http_status(:success)
+        expect(json_response[:data].count).to eq(2)
+        expect(json_response[:data][0][:id]).to eq(funds.third.id)
+        expect(json_response[:data][1][:id]).to eq(funds.fourth.id)
       end
     end
   end

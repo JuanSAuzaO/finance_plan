@@ -13,4 +13,10 @@ class ApplicationController < ActionController::API
       params: opts[:params] || {}
     ).serializable_hash
   end
+
+  def pagy_custom(collection)
+    Paginators::CustomPagy.paginate(
+      collection, limit: params.dig(:page, :size) || 20, page: params.dig(:page, :number) || 1
+    )
+  end
 end
